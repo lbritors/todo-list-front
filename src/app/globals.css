@@ -1,6 +1,13 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+/* Ensure Tailwind CSS is installed and configured correctly */
+@import 'tailwindcss/base';
+@import 'tailwindcss/components';
+@import 'tailwindcss/utilities';
+
+
+@import 'primereact/resources/themes/saga-blue/theme.css'; /* Importe o tema do PrimeReact */
+@import 'primereact/resources/primereact.min.css'; /* Importe os estilos principais do PrimeReact */
+@import 'primeicons/primeicons.css'; /* Importe os estilos dos ícones (se necessário) */
+@import 'primeflex/primeflex.css';
 
 :root {
   --background: #ffffff;
@@ -9,7 +16,7 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
+    --background: #EDF4ED;
     --foreground: #ededed;
   }
 }
