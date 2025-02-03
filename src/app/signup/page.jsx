@@ -41,17 +41,31 @@ export default function InvalidStateDemo() {
 		}catch(error) {
 			console.error("Validation Error:", error);
 		}
+    const cpfTratado = validateCPF(values.cpf);
+    const phoneTratado = validatePhone(values.phone);
+    const zipCodeTratado = validateZipCode(values.zipCode);
       
-	  setForm(values);
-	  axios.post(`${process.env.NEXT_PUBLIC_API_BASE_URL}/users`, values).then((response) => {
-		console.log(response);
-	  }).catch((error) => {
-		console.error(error);
-	  });
+    const data = {... values, phoneType: phoneType, zipCode: zipCodeTratado, phone: phoneTratado, cpf: cpfTratado};
+    setForm(data);
+    console.log(form);
+    
     },
   });
 
+ 
+  function validateCPF(cpf) {
+    return cpf.replace(/\D/g, "");
+   
+  }
 
+  function validatePhone(phone) {
+    return phone.replace(/\D/g, "");
+  }
+  
+  function validateZipCode(zipCode) {
+    return zipCode.replace("-", "");
+    
+  }
 
   const handlePhoneTypeChange = (e) => {
 	setPhoneType(e.value);
@@ -154,7 +168,7 @@ export default function InvalidStateDemo() {
                 id="phone"
                 name="phone"
                 mask={
-                  phoneType === "celular" ? "(99) 9 9999-9999" : "(99) 9999-9999"
+                  phoneType === "celular" ? "(99) 99999-9999" : "(99) 9999-9999"
                 }
                 value={formik.values.phone}
                 onChange={(e) => {
