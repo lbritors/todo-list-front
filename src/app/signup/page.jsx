@@ -9,10 +9,11 @@ import { InputMask } from "primereact/inputmask";
 import { InputText } from "primereact/inputtext";
 import { Password } from "primereact/password";
 import signUpSchema from "../schemas/signup.schema";
-import { set } from "react-hook-form";
+import { get, set } from "react-hook-form";
 import axios from "axios";
 
 export default function InvalidStateDemo() {
+
   const phoneTypes = ["celular", "comercial", "residencial"];
   const [phoneType, setPhoneType] = useState("celular");
   const [form, setForm] = useState(null);
@@ -26,7 +27,7 @@ export default function InvalidStateDemo() {
       email: "",
       phone: "",
       phoneType: "celular",
-      estado: "",
+      estado:  "",
       cidade: "",
 	  logradouro: "",
       bairro: "",
@@ -36,35 +37,72 @@ export default function InvalidStateDemo() {
     onSubmit: async (values) => {
 		try{
 			await signUpSchema.validate(values, { abortEarly: false });
-			console.log("Validated Values:", values);
-			alert("formulário validado!")
+      const response = {
+        name: values.name,
+        cpf: validateData(values.cpf),
+        password: values.password,
+        address: {
+          zipCode: validateData(values.zipCode),
+          state: values.estado,
+          city: values.cidade,
+          district: values.bairro,
+          street: values.logradouro,
+          complement: values.complemento
+        },
+        email: [{email: values.email}],
+        phone: [{phone: validateData(values.phone), type: phoneType}],
+
+      }
+		
+      await axios.post("http://localhost:8080/users", response);
 		}catch(error) {
 			console.error("Validation Error:", error);
-		}
-    const cpfTratado = validateCPF(values.cpf);
-    const phoneTratado = validatePhone(values.phone);
-    const zipCodeTratado = validateZipCode(values.zipCode);
-      
-    const data = {... values, phoneType: phoneType, zipCode: zipCodeTratado, phone: phoneTratado, cpf: cpfTratado};
-    setForm(data);
-    console.log(form);
-    
+		}  
     },
   });
 
- 
-  function validateCPF(cpf) {
-    return cpf.replace(/\D/g, "");
-   
-  }
-
-  function validatePhone(phone) {
-    return phone.replace(/\D/g, "");
-  }
   
-  function validateZipCode(zipCode) {
-    return zipCode.replace("-", "");
-    
+async function fetchAddress(cep) {
+  const zipCodeTratado = validateData(cep);
+  try {
+    const response = await axios.get(`https://viacep.com.br/ws/${zipCodeTratado}/json/`);
+    if(!response.data.erro) {
+      formik.setValues({
+        ...formik.values,
+        estado: response.data.uf || "",
+        cidade: response.data.localidade || "",
+        bairro: response.data.bairro || "",
+        logradouro: response.data.logradouro || "",
+        complemento: response.data.complemento || "",
+      });
+    }else {
+      formik.setValues({
+        ...formik.values,
+        estado: "",
+        cidade: "",
+        bairro: "",
+        logradouro: "",
+        complemento: "",
+      });
+    }
+
+  } catch (error) {
+    console.error("Error fetching address:", error);
+    formik.setValues({
+      ...formik.values,
+      estado: "",
+      cidade: "",
+      bairro: "",
+      logradouro: "",
+      complemento: "",
+    });
+  }
+}
+
+
+  function validateData(mask) {
+    return mask.replace(/\D/g, "");
+   
   }
 
   const handlePhoneTypeChange = (e) => {
@@ -201,7 +239,7 @@ export default function InvalidStateDemo() {
                 mask="99999-999"
                 value={formik.values.zipCode}
                 onChange={formik.handleChange}
-                onBlur={formik.handleBlur}
+                onBlur={() => fetchAddress(formik.values.zipCode)}
                 className={`w-full ${isFormFieldValid("zipCode") ? "p-invalid" : ""}`}
               />
               {getFormErrorMessage("zipCode")}
