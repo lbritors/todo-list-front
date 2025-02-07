@@ -9,14 +9,14 @@ import { InputMask } from "primereact/inputmask";
 import { InputText } from "primereact/inputtext";
 import { Password } from "primereact/password";
 import signUpSchema from "../schemas/signup.schema";
-import { get, set } from "react-hook-form";
 import axios from "axios";
+import { useRouter } from "next/navigation";
 
 export default function InvalidStateDemo() {
 
   const phoneTypes = ["celular", "comercial", "residencial"];
   const [phoneType, setPhoneType] = useState("celular");
-  const [form, setForm] = useState(null);
+  const router = useRouter();
 
   const formik = useFormik({
     initialValues: {
@@ -54,7 +54,9 @@ export default function InvalidStateDemo() {
 
       }
 		
-      await axios.post("http://localhost:8080/users", response);
+      await axios.post("/user", response);
+      router.push("/")
+
 		}catch(error) {
 			console.error("Validation Error:", error);
 		}  
@@ -199,6 +201,17 @@ async function fetchAddress(cep) {
             </div>
           </div>
 
+          <div className="field mt-3 w-[500px]">
+              <label htmlFor="phoneType">Tipo</label>
+              <Dropdown
+                id="phoneType"
+                options={phoneTypes}
+                value={formik.values.phoneType}
+                onChange={handlePhoneTypeChange}
+                className="w-full"
+              />
+            </div>
+
           <div className="flex flex-col justify-center items-center card w-full">
             <div className="flex field mt-3 w-[500px]">
               <label htmlFor="phone">Telefone</label>
@@ -219,16 +232,7 @@ async function fetchAddress(cep) {
               {getFormErrorMessage("phone")}
             </div>
 
-            <div className="field mt-3 w-[500px]">
-              <label htmlFor="phoneType">Tipo</label>
-              <Dropdown
-                id="phoneType"
-                options={phoneTypes}
-                value={formik.values.phoneType}
-                onChange={handlePhoneTypeChange}
-                className="w-full"
-              />
-            </div>
+           
 
             {/* CEP, Estado, Cidade, Bairro e Complemento */}
             <div className="field mt-3 w-[500px]">
