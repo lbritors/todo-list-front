@@ -11,6 +11,7 @@ import { Password } from "primereact/password";
 import signUpSchema from "../schemas/signup.schema";
 import axios from "axios";
 import { useRouter } from "next/navigation";
+import api from "../utils/api";
 
 export default function InvalidStateDemo() {
 
@@ -54,7 +55,7 @@ export default function InvalidStateDemo() {
 
       }
 		
-      await axios.post("/user", response);
+      await api.post("/user", response);
       router.push("/")
 
 		}catch(error) {

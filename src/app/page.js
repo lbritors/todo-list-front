@@ -5,15 +5,12 @@ import Header from "./_components/Header";
 import { useState } from "react";
 import Link from "next/link";
 import axios from "axios";
-import { useRouter } from "next/navigation";
 import { useFormik } from "formik";
 import loginSchema from "./schemas/login.schema";
 import { InputMask } from "primereact/inputmask";
 import { Password } from "primereact/password";
+import api from "./utils/api";
 export default function Home() {
-	const [cpf, setCpf] = useState("");
-	const [password, setPassword] = useState("");
-	const navigate = useRouter();
 
 	const formik = useFormik({
 		initialValues: {
@@ -24,10 +21,11 @@ export default function Home() {
 			try {
 				await loginSchema.validate(values, { abortEarly: false });
 				const response = {
-					cpf: values.cpf,
+					cpf: validateData(values.cpf),
 					password: values.password,
 				};
-				await axios.post("/auth/user", response);
+				const result = await api.post("/auth/user", response);
+				console.log(result.data);
 			} catch (error) {
 				console.error(error);
 			}
